@@ -5,7 +5,7 @@
 
 using namespace std;
 
-// cout b
+
 double example_b(double x, double y, double z){
     double num_b_up = y + atan(pow(abs(pow(x, 2) + pow(abs(z), 0.1)), 1));
     double num_b_down = (2 * z) + x + pow(sin(pow(y, 3)), 2);
@@ -13,7 +13,6 @@ double example_b(double x, double y, double z){
     return x * ((num_b_up / num_b_down) + num_b_e);
 }
 
-// cout a
 double example_a(double x, double y, double z, double b_value){
     double num_a_up = pow(abs(x + y), 0.3) / (pow(b_value, 2) + z);
     double num_a_down = (1 + exp(-(x - z))) + pow(abs(y), 0.43);
@@ -29,40 +28,42 @@ void print_results(double x, double y, double z){
     cout<<" y = "<< y << endl;
     cout<<" z = "<< z << endl;
     cout<<endl;
-    cout<<"Result cout b:"<< b_result<< endl;
-    cout<<"Result cout a:"<<a_result<< endl; 
+    cout<<"Result a:"<<a_result<< endl; 
+    cout<<"Result b:"<< b_result<< endl;
+    
 }
 
 int main(){
-
-    //tabylatsia
-    
-    double x_start = -1.0;
+    double x_start = 1.0;     
     double y = 0.47;
     double z = -1.32;
-    double x_end = 1.0;
-    double x_step = 0.2;
+    double x_end =  -1.0;      
+    double x_step = -0.2;      
 
-    cout<<" Tabylatsia function" << endl;
-    string multiLineOutput = "Result : \n";
+    cout << "Табуляція функції" << endl;
+    string multiLineOutput = "Результат : \n";
     multiLineOutput += "x\t\tb(x)\t\ta(x)\n";
-    multiLineOutput +="-------------------------------------\n";
+    multiLineOutput += "-------------------------------------\n";
 
-    for (double x = x_start; x <= x_end; x += x_step) {
+    for (double x = x_start; x >= x_end; x += x_step) {  
         double b_result = example_b(x, y, z);
         double a_result = example_a(x, y, z, b_result);
 
-        char buffer[100];
-        snprintf(buffer, sizeof(buffer), "%.2f\t\t%.6f\t%.6f\n", x, b_result, a_result);
+        char buffer[200];  
+        
+        //More Tochnist
+        snprintf(buffer, sizeof(buffer), "%.2f\t\t%.2f\t%.2f\n",
+                 x, 
+                 b_result,
+                 a_result);
+
         multiLineOutput += buffer;
     }
     cout << multiLineOutput << endl;
 
-    // Другий спосіб: обчислення для конкретних значень
-    cout << "=== ОБЧИСЛЕННЯ ДЛЯ КОНКРЕТНИХ ЗНАЧЕНЬ ===" << endl;
+    cout << "=== Cout Specesial valueb ===" << endl;
     double specific_x = 0.48;
     print_results(specific_x, y, z);
 
     return 0;
-
 }
