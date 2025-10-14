@@ -1,1 +1,419 @@
+#include <iostream>
+#include <string>
+#include <map>
+#include <cctype>
 
+using namespace std;
+
+class SIMCard {
+private:
+    string number;
+    string operatorName;
+public:
+    SIMCard(string num, string op) : number(num), operatorName(op) {}
+    
+    string getNumber() const { return number; }
+    string getOperator() const { return operatorName; }
+    
+    void displayInfo() const {
+        cout << " Оператор: " << operatorName << endl;
+        cout << " Номер: " << number << endl;
+    }
+    
+    void editSIMInfo() {
+        string newNumber, newOperator;
+        cout << "\n--- РЕДАГУВАННЯ SIM-КАРТИ ---" << endl;
+        
+        cout << "Введіть новий номер: ";
+        cin >> newNumber;
+        if (isValidNumber(newNumber)) {
+            number = newNumber;
+        } else {
+            cout << " Неправильний формат номеру!" << endl;
+        }
+        
+        cout << "Введіть нового оператора: ";
+        cin >> newOperator;
+        operatorName = newOperator;
+        
+        cout << " Інформацію оновлено!" << endl;
+    }
+    
+    bool isValidNumber(const string& num) {
+        if (num.length() != 10) return false;
+        for (int i = 0; i < num.length(); i++) {
+            if (!isdigit(num[i])) return false;
+        }
+        return true;
+    }
+};
+
+class Account {
+private:
+    double balance;
+    string currency;
+public:
+    Account(double initialBalance = 0.0, string curr = "UAH") 
+        : balance(initialBalance), currency(curr) {}
+    
+    void topUp(double amount) {
+        balance += amount;
+        cout << "Рахунок поповнено на " << amount << " " << currency << endl;
+    }
+    
+    bool withdraw(double amount) {
+        if (balance >= amount) {
+            balance -= amount;
+            return true;
+        }
+        return false; // Недостатньо коштів
+    }
+    
+    double getBalance() const {
+        return balance;
+    }
+    
+    string getCurrency() const {
+        return currency;
+    }
+    
+    void displayBalance() const {
+        cout << " Баланс: " << balance << " " << currency << endl;
+    }
+};
+
+class PhoneBook {
+private:
+    map<string, string> contacts;
+public:
+    PhoneBook() {
+
+        addDefaultContacts();
+    }
+     void addDefaultContacts() {
+        contacts["Іван "] = "0501112233";
+        contacts["Марія "] = "0502223344";
+        contacts["Олексій"] = "0503334455";
+        contacts["Бодя"] = "0504445566";
+        contacts["Петро"] = "0505556677";
+        contacts["Женя"] = "0506667788";
+        contacts["Андрій "] = "0507778899";
+        contacts["Таня"] = "0508889900";
+        contacts["Сергій "] = "0509990011";
+        contacts["Юля"] = "0500001122";
+     }
+    
+    void displayAllContacts() const {
+        cout << "\n--- ТЕЛЕФОННА КНИГА ---" << endl;
+        if (contacts.empty()) {
+            cout << " Контактів немає" << endl;
+        } else {
+            int counter = 1;
+            for (map<string, string>::const_iterator it = contacts.begin(); it != contacts.end(); ++it) {
+                cout << counter << ". " << it->first << ": " << it->second << endl;
+                counter++;
+            }
+        }
+    }
+    
+    void addContact() {
+        string name, number;
+        cout << "\n--- ДОДАВАННЯ КОНТАКТУ ---" << endl;
+        cout << "Введіть ім'я контакту: ";
+        cin.ignore();
+        getline(cin, name);
+        
+        cout << "Введіть номер телефону (10 цифр): ";
+        cin >> number;
+        
+        if (isValidNumber(number)) {
+            contacts[name] = number;
+            cout << " Контакт " << name << " додано" << endl;
+        } else {
+            cout << " Неправильний формат номеру! Має бути 10 цифр." << endl;
+        }
+    }
+    
+    void removeContact() {
+        string name;
+        cout << "\n--- ВИДАЛЕННЯ КОНТАКТУ ---" << endl;
+        cout << "Введіть ім'я контакту для видалення: ";
+        cin.ignore();
+        getline(cin, name);
+        
+        map<string, string>::iterator it = contacts.find(name);
+        if (it != contacts.end()) {
+            contacts.erase(it);
+            cout << " Контакт " << name << " видалено" << endl;
+        } else {
+            cout << " Контакт не знайдено" << endl;
+        }
+    }
+    
+    void editContact() {
+        string oldName, newName, newNumber;
+        cout << "\n--- РЕДАГУВАННЯ КОНТАКТУ ---" << endl;
+        cout << "Введіть старе ім'я контакту: ";
+        cin.ignore();
+        getline(cin, oldName);
+        
+        map<string, string>::iterator it = contacts.find(oldName);
+        if (it != contacts.end()) {
+            cout << "Введіть нове ім'я контакту: ";
+            getline(cin, newName);
+            cout << "Введіть новий номер телефону (10 цифр): ";
+            cin >> newNumber;
+            
+            if (isValidNumber(newNumber)) {
+                contacts.erase(oldName);
+                contacts[newName] = newNumber;
+                cout << " Контакт оновлено!" << endl;
+            } else {
+                cout << " Неправильний формат номеру!" << endl;
+            }
+        } else {
+            cout << " Контакт не знайдено" << endl;
+        }
+    }
+    
+    string findNumber(const string& name) const {
+        map<string, string>::const_iterator it = contacts.find(name);
+        if (it != contacts.end()) {
+            return it->second;
+        }
+        return "";
+    }
+    
+    bool isValidNumber(const string& num) {
+        if (num.length() != 10) return false;
+        for (int i = 0; i < num.length(); i++) {
+            if (!isdigit(num[i])) return false;
+        }
+        return true;
+    }
+    
+    void showPhoneBookMenu(Account& account) {
+        int choice;
+        do {
+            cout << "\n === МЕНЮ ТЕЛЕФОННОЇ КНИГИ ===" << endl;
+            cout << "1. Переглянути контакти" << endl;
+            cout << "2. Додати контакт" << endl;
+            cout << "3. Видалити контакт" << endl;
+            cout << "4. Редагувати контакт" << endl;
+            cout << "5. Подзвонити контакту" << endl;
+            cout << "6. Переглянути баланс" << endl;
+            cout << "0. Повернутися в головне меню" << endl;
+            cout << "Виберіть опцію: ";
+            cin >> choice;
+            
+            switch(choice) {
+                case 1: {
+                    displayAllContacts();
+                    break;
+                }
+                case 2: {
+                    addContact();
+                    break;
+                }
+                case 3: {
+                    removeContact();
+                    break;
+                }
+                case 4: {
+                    editContact();
+                    break;
+                }
+                case 5: {
+                    makeCallToContact(account);
+                    break;
+                }
+                case 6: {
+                    account.displayBalance();
+                    break;
+                }
+                case 0: {
+                    cout << " Повертаємося в головне меню..." << endl;
+                    break;
+                }
+                default: {
+                    cout << " Неправильний вибір!" << endl;
+                    break;
+                }
+            }
+        } while (choice != 0);
+    }
+    
+    void makeCallToContact(Account& account) {
+        string contactName;
+        cout << "\n--- ДЗВІНОК КОНТАКТУ ---" << endl;
+        cout << "Введіть ім'я контакту для дзвінка: ";
+        cin.ignore();
+        getline(cin, contactName);
+        
+        string number = findNumber(contactName);
+        if (!number.empty()) {
+            cout << " Дзвінок " << contactName << " (" << number << ")..." << endl;
+            if (account.withdraw(2.0)) {
+                cout << " Дзвінок успішний! Списано 2.0 UAH" << endl;
+                account.displayBalance();
+            } else {
+                cout << " Недостатньо коштів для дзвінка!" << endl;
+            }
+        } else {
+            cout << " Контакт не знайдено!" << endl;
+        }
+    }
+};
+
+class MobilePhone {
+private:
+    string model;
+    SIMCard* simCard;
+    PhoneBook phoneBook;
+    Account account;
+    
+public:
+   //Конструктор
+    MobilePhone(string phoneModel, string simNumber, string operatorName, double initialBalance = 0.0)
+        : model(phoneModel), account(initialBalance) {
+        simCard = new SIMCard(simNumber, operatorName);
+    }
+    //Деструктор
+    ~MobilePhone() {
+        delete simCard;
+    }
+    
+    void showAccountMenu() {
+        int choice;
+        do {
+            cout << "\n === МЕНЮ РАХУНКУ ===" << endl;
+            cout << "1. Переглянути баланс" << endl;
+            cout << "2. Поповнити рахунок" << endl;
+            cout << "0. Повернутися в головне меню" << endl;
+            cout << "Виберіть опцію: ";
+            cin >> choice;
+            
+            switch(choice) {
+                case 1: {
+                    account.displayBalance();
+                    break;
+                }
+                case 2: {
+                    double amount;
+                    cout << "Введіть суму для поповнення: ";
+                    cin >> amount;
+                    
+                    if (cin.fail() || amount <= 0) {
+                        cout << " Неправильна сума!" << endl;
+                        cin.clear();
+                        cin.ignore(10000, '\n');
+                    } else {
+                        account.topUp(amount);
+                    }
+                    break;
+                }
+                case 0: {
+                    cout << " Повертаємося в головне меню..." << endl;
+                    break;
+                }
+                default: {
+                    cout << " Неправильний вибір!" << endl;
+                    break;
+                }
+            }
+        } while (choice != 0);
+    }
+    
+    void showSIMMenu() {
+        int choice;
+        do {
+            cout << "\n === МЕНЮ SIM-КАРТИ ===" << endl;
+            cout << "1. Переглянути інформацію" << endl;
+            cout << "2. Редагувати інформацію" << endl;
+            cout << "3. Переглянути баланс" << endl;
+            cout << "0. Повернутися в головне меню" << endl;
+            cout << "Виберіть опцію: ";
+            cin >> choice;
+            
+            switch(choice) {
+                case 1: {
+                    simCard->displayInfo();
+                    account.displayBalance();
+                    break;
+                }
+                case 2: {
+                    simCard->editSIMInfo();
+                    break;
+                }
+                case 3: {
+                    account.displayBalance();
+                    break;
+                }
+                case 0: {
+                    cout << " Повертаємося в головне меню..." << endl;
+                    break;
+                }
+                default: {
+                    cout << " Неправильний вибір!" << endl;
+                    break;
+                }
+            }
+        } while (choice != 0);
+    }
+    
+    void showMainMenu() {
+        int choice;
+        do {
+            cout << "\n === ГОЛОВНЕ МЕНЮ ТЕЛЕФОНУ ===" << endl;
+            cout << "1.  Телефонна книга" << endl;
+            cout << "2.  Рахунок" << endl;
+            cout << "3.  SIM-карта" << endl;
+            cout << "4.  Інформація про телефон" << endl;
+            cout << "0.  Вихід" << endl;
+            cout << "Виберіть опцію: ";
+            cin >> choice;
+            
+            switch(choice) {
+                case 1: {
+                    phoneBook.showPhoneBookMenu(account);
+                    break;
+                }
+                case 2: {
+                    showAccountMenu();
+                    break;
+                }
+                case 3: {
+                    showSIMMenu();
+                    break;
+                }
+                case 4: {
+                    displayFullInfo();
+                    break;
+                }
+                case 0: {
+                    cout << " Дякуємо за використання!" << endl;
+                    break;
+                }
+                default: {
+                    cout << " Неправильний вибір!" << endl;
+                    break;
+                }
+            }
+        } while (choice != 0);
+    }
+    
+    void displayFullInfo() const {
+        cout << "\n=== ІНФОРМАЦІЯ ПРО ТЕЛЕФОН ===" << endl;
+        cout << " Модель: " << model << endl;
+        simCard->displayInfo();
+        account.displayBalance();
+        ///phoneBook.displayAllContacts();
+    }
+};
+int main() {
+    MobilePhone phone("Samsung Galaxy S23", "0501234567", "Kyivstar", 50.0);
+    //main menu
+    phone.showMainMenu();
+
+    return 0;
+}
