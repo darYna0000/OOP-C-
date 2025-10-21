@@ -1,120 +1,109 @@
 #include <iostream>
 #include <cmath>
-#include <stdexcept>
-#include <string>
+#include <stdexcept> // work with exceptions
 
 using namespace std;
 
 class Circle {
 private:
     double radius;
-    double S;
-    double circumference;
-
-    void calculateProperties() {
-        S = M_PI * radius * radius;
-        circumference = 2 * M_PI * radius;
-    }
 
 public:
-    // Конструктор
-    Circle() : radius(0), S(0), circumference(0) {}
-    
-    // Конструктор з параметром
+    // Constructors
+    Circle() : radius(0) {}
+
     Circle(double r) {
         setRadius(r);
     }
 
-    // Сетери з обробкою винятків
+// setter z vuinatkamu 
     void setRadius(double r) {
         if (r < 0) {
             throw invalid_argument("Радіус не може бути від'ємним");
         }
         radius = r;
-        calculateProperties();
     }
 
-    // Гетери повертають значення полів
-    double getRadius() const { return radius; }
-    double getArea() const { return S; }
-    double getCircumference() const { return circumference; }
-
-    // Метод розрахунку площі
-    double calculateArea() {
-        calculateProperties(); //властивості
-        return S;
+    // metod ne zminye object
+    double getRadius() const {
+        return radius;
     }
 
-    // Метод виведення даних
-    void displayData() const {
-        cout << "Коло:" << endl;
-        cout << "Радіус: " << radius << endl;
-        cout << "Площа: " << S << endl;
-        cout << "Довжина кола: " << circumference << endl;
+    // metod rozrahunku ploshchi
+    double area() const {
+        return M_PI * radius * radius;
     }
 
-    // Перевантаження потокового введення
-    friend istream& operator>>(istream& is, Circle& circle) {
-        double r;
-        is >> r; //
-        
-        if (is.fail()) {
-            throw runtime_error("Помилка введення: очікувалось число");
+    // metod rozrahunku dovzhini kola
+    double circumference() const {
+        return 2 * M_PI * radius;
+    }
+
+    // Перевантажені методи розрахунку площі(metod area)
+    double area(double r) const {
+        if (r < 0) {
+            throw invalid_argument("Радіус для розрахунку площі не може бути від'ємним");
         }
-        
-        circle.setRadius(r);
-        return is;
+        return M_PI * r * r;
     }
 
-    // Перевантаження потокового виведення
-    friend ostream& operator<<(ostream& os, const Circle& circle) {
-        os << "Коло: радіус = " << circle.radius 
-           << ", площа = " << circle.S 
-           << ", довжина кола = " << circle.circumference;
-        return os;
+    // Перевантажені методи виведення
+    void display() const {
+        cout << *this;
     }
+
+    void display(ostream& out) const {
+        out << *this;
+    }
+
+    // потокові оператори
+    friend istream& operator>>(istream& in, Circle& circle);
+    friend ostream& operator<<(ostream& out, const Circle& circle);
 };
+
+// Перевантажена операція введення
+istream& operator>>(istream& in, Circle& circle) {
+    double r;
+    in >> r;
+    circle.setRadius(r);
+    return in;
+}
+
+// Перевантажена операція виведення
+ostream& operator<<(ostream& out, const Circle& circle) {
+    out << "Коло:\n";
+    out << "  Радіус: " << circle.radius << endl;
+    out << "  Площа: " << circle.area() << endl;
+    out << "  Довжина кола: " << circle.circumference() << endl;
+    return out;
+}
 
 int main() {
     try {
-        Circle circle1;
+        Circle c1;
         
-        //перевантаження оператора
         cout << "Введіть радіус кола: ";
-        cin >> circle1;
+        cin >> c1;
+        
+        cout << c1;
 
+        cout << "Радіус успішно встановлено"<<endl;
         
-        cout << "\nДані про коло:" << endl;
-        cout << circle1 << endl;
+        // Демонстрація перевантажених методів
+        cout << "\nПеревантажені методи:\n";
+        c1.display();
+        cout << "Площа для радіуса 5: " << c1.area(5) << endl;
         
-        cout << "\nВикористання методу displayData():" << endl;
-        circle1.displayData();
-        
-        cout << "\nПерерахунок площі: " << circle1.calculateArea() << endl;
-        
-        // Тест обробки винятків
-        cout << "\nТест з від'ємним радіусом:" << endl;
-        try {
-            Circle circle2(-5);
-        } catch (const invalid_argument& e) {
-            cout << "Виняток: " << e.what() << endl;
-        }
-        
-        cout << "\nТест з некоректним введенням:" << endl;
-        try {
-            Circle circle3;
-            cout << "Введіть нечислове значення: ";
-            cin.clear();
-            cin.ignore(10000, '\n');
-            cin >> circle3;
-        } catch (const runtime_error& e) {
-            cout << "Виняток: " << e.what() << endl;
-        }
-        
-    } catch (const exception& e) {
-        cerr << "Сталася помилка: " << e.what() << endl;
-        return 1;
+        // sproba -5 = R
+        Circle c2(-5);
     }
-    
+    // e.what() metod otrumania pomulok
+    catch (const invalid_argument& e) {
+        cerr << "Помилка: " << e.what() << endl;
+    }
+    catch (...) {
+        cerr << "Невідома помилка!" << endl;
+    }
+
     return 0;
 }
