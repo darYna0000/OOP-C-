@@ -1,0 +1,160 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <cstdlib> 
+
+using namespace std;
+
+class Person {
+protected:  
+    string name;
+    int age;
+public:
+    // Costructor
+    Person() : name(""), age(0) {}
+    Person(const string& n, int a) : name(n), age(a) {}
+    
+    // Методи get/set
+    string getName() const { return name; }
+    int getAge() const { return age; }
+    void setName(const string& n) { name = n; }
+    void setAge(int a) { age = a; }
+    
+    // Віртуальний деструктор гарантує правильне видалення похідних класів
+    virtual ~Person() {}
+    
+    // Перевизначення в
+    friend ostream& operator<<(ostream& os, const Person& p);
+    friend istream& operator>>(istream& is, Person& p);
+    
+    // Віртуальний метод для виведення типу об'єкта
+    virtual string getType() const { return "ОСОБА"; }
+};
+
+// Оператор виведення для Person
+ostream& operator<<(ostream& os, const Person& p) {
+    os << "Ім'я: " << p.name << "\nВік: " << p.age;
+    return os;
+}
+
+// Оператор введення для Person
+istream& operator>>(istream& is, Person& p) {
+    cout << "Введіть ім'я: ";
+    getline(is, p.name);
+    cout << "Введіть вік: ";
+    is >> p.age;
+    is.ignore(); // Чистимо буфер
+    return is;
+}
+
+// Похідний клас СЛУЖБОВЕЦЬ
+class Employee : public Person {
+private:
+    string position;
+    double salary;
+public:
+    // Конструктори
+    Employee() : Person(), position(""), salary(0) {}
+    Employee(const string& n, int a, const string& pos, double sal) 
+        : Person(n, a), position(pos), salary(sal) {}
+    
+    // 
+    string getPosition() const { return position; }
+    double getSalary() const { return salary; }
+    void setPosition(const string& pos) { position = pos; }
+    void setSalary(double sal) { salary = sal; }
+    
+    // Перевизначення введення/виведення
+    friend ostream& operator<<(ostream& os, const Employee& e);
+    friend istream& operator>>(istream& is, Employee& e);
+    
+    // Перевизначення методу getType
+    string getType() const override { return "СЛУЖБОВЕЦЬ"; }
+};
+
+// Оператор виведення для Employee
+ostream& operator<<(ostream& os, const Employee& e) {
+    os << static_cast<const Person&>(e) 
+       << "\nПосада: " << e.position 
+       << "\nЗарплата: " << e.salary << " грн";
+    return os;
+}
+
+// Оператор введення для Employee
+istream& operator>>(istream& is, Employee& e) {
+    is >> static_cast<Person&>(e);
+    cout << "Введіть посаду: ";
+    getline(is, e.position);
+    cout << "Введіть зарплату: ";
+    is >> e.salary;
+    is.ignore();
+    return is;
+}
+
+// Функція для відкриття файлу в текстовому редакторі
+void openInTextEditor(const string& filename) {
+    string command = "open -a TextEdit " + filename;
+    system(command.c_str());
+}
+
+
+int main() {
+    cout << "  Програма для роботи з класами ОСОБА та СЛУЖБОВЕЦЬ  \n" << endl;
+
+    // Створення об'єктів
+    Person person("Іван Петренко", 25);
+    Employee employee("Марія Коваленко", 30, "Менеджер", 25000.0);
+    
+    // Введення даних з консолі
+    Person newPerson;
+    Employee newEmployee;
+    
+    cout << "Введення даних для персони:\n";
+    cin >> newPerson;
+    
+    cout << "\nВведення даних для службовця:\n";
+    cin >> newEmployee;
+    
+    string filename = "classes_info.txt";
+    
+    // Виведення у файл
+    ofstream outFile(filename);
+    if (outFile.is_open()) {
+        outFile << "=== ІНФОРМАЦІЯ ПРО КЛАСИ ===\n\n";
+        
+        outFile << "1. " << person.getType() << " (створений у коді):\n" 
+                << person << "\n\n";
+        
+        outFile << "2. " << newPerson.getType() << " (введений користувачем):\n" 
+                << newPerson << "\n\n";
+        
+        outFile << "3. " << employee.getType() << " (створений у коді):\n" 
+                << employee << "\n\n";
+        
+        outFile << "4. " << newEmployee.getType() << " (введений користувачем):\n" 
+                << newEmployee << "\n\n";
+        
+        outFile.close();
+        
+        cout << "\n Дані успішно записані у файл '" << filename << "'" << endl;
+        cout << " Відкриваю файл у текстовому редакторі..." << endl;
+        
+        // Відкриття файлу в текстовому редакторі
+        openInTextEditor(filename);
+        
+    } else {
+        cerr << " Помилка відкриття файлу!" << endl;
+        return 1;
+    }
+    
+    // Виведення в консоль для перевірки
+    cout << "\n=== ПЕРЕВІРКА ДАНИХ У КОНСОЛІ ===" << endl;
+    cout << "\nПерсона:\n" << person << "\n" << endl;
+    cout << "Нова персона (консоль):\n" << newPerson << "\n" << endl;
+    cout << "Службовець:\n" << employee << "\n" << endl;
+    cout << "Новий службовець (консоль) :\n" << newEmployee << endl;
+    
+    cout << "\n Програма завершила роботу!" << endl;
+    
+    return 0;
+}
