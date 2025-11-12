@@ -1,0 +1,156 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+template<typename T>
+class Set {
+private:
+    vector<T> elements;
+
+public:
+    // Constructors
+    Set() {}
+    
+    Set(const vector<T>& initialElements) {
+        for (size_t i = 0; i < initialElements.size(); ++i) {
+            add(initialElements[i]);
+        }
+    }
+
+    // add elements, unique only
+    void add(const T& element) {
+        if (!contains(element)) {
+            elements.push_back(element);
+        }
+    }
+
+    // Operation of union(обʼєднання)
+    Set<T> unionWith(const Set<T>& other) const {
+        Set<T> result = *this;
+        for (size_t i = 0; i < other.elements.size(); ++i) {
+            result.add(other.elements[i]);
+        }
+        return result;
+    }
+
+    // Opetation of intersection(перетин)
+    Set<T> intersectionWith(const Set<T>& other) const {
+        Set<T> result;
+        for (size_t i = 0; i < elements.size(); ++i) {
+            if (other.contains(elements[i])) {
+                result.add(elements[i]);
+            }
+        }
+        return result;
+    }
+
+    // Operation of differece (this - other)
+    Set<T> differenceWith(const Set<T>& other) const {
+        Set<T> result;
+        for (size_t i = 0; i < elements.size(); ++i) {
+            if (!other.contains(elements[i])) {
+                result.add(elements[i]);
+            }
+        }
+        return result;
+    }
+
+    // Check for equality
+    bool operator==(const Set<T>& other) const {
+        if (elements.size() != other.elements.size()) {
+            return false;
+        }
+        for (size_t i = 0; i < elements.size(); ++i) {
+            if (!other.contains(elements[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Opration of out put 
+    friend ostream& operator<<(ostream& os, const Set<T>& set) {
+        os << "{ ";
+        for (size_t i = 0; i < set.elements.size(); ++i) {
+            os << set.elements[i];
+            if (i < set.elements.size() - 1) {
+                os << ", ";
+            }
+        }
+        os << " }";
+        return os;
+    }
+
+    // Opration of input
+    friend istream& operator>>(istream& is, Set<T>& set) {
+        set.elements.clear();
+        T element;
+        char ch;
+        
+        // expect to input start with
+        is >> ch;
+        if (ch != '{') {
+            is.setstate(ios::failbit);
+            return is;
+        }
+        
+        // read elements to }
+        while (is >> element) {
+            set.add(element);
+            is >> ch;
+            if (ch == '}') break;
+            if (ch != ',') {
+                is.setstate(ios::failbit);
+                break;
+            }
+        }
+        
+        return is;
+    }
+
+private:
+    // Checker for elements existence
+    bool contains(const T& element) const {
+        return find(elements.begin(), elements.end(), element) != elements.end();
+    }
+};
+
+int main() {
+    cout << "=== Демонстрація роботи з множинами ===" << endl;
+    
+    // generate two sets 
+    vector<int> v1;
+    v1.push_back(1);
+    v1.push_back(2);
+    v1.push_back(3);
+    v1.push_back(4);
+    v1.push_back(5);
+    
+    vector<int> v2;
+    v2.push_back(3);
+    v2.push_back(4);
+    v2.push_back(5);
+    v2.push_back(6);
+    v2.push_back(7);
+    
+    Set<int> set1(v1);
+    Set<int> set2(v2);
+    
+    cout << "Plural 1: " << set1 << endl;
+    cout << "Plural 2: " << set2 << endl;
+    
+    // Operetions with sets
+    cout << "\nOperations on sets:" << endl;
+    cout << "association: " << set1.unionWith(set2) << endl; // Обʼєднання
+    cout << "Crossing: " << set1.intersectionWith(set2) << endl; // Перетин
+    cout << "Difference (set1 - set2): " << set1.differenceWith(set2) << endl;
+    cout << "Difference (set2 - set1): " << set2.differenceWith(set1) << endl;
+    
+    // Порівняння множин
+    cout << "Comparison:" << endl;
+    cout << "set1 == set2: " << (set1 == set2 ? "yes" : "no") << endl;
+    
+    return 0;
+}
