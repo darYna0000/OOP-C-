@@ -1,0 +1,97 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <limits>
+
+#include <cstdlib> 
+#include <ctime>  
+#include <random>  
+
+using namespace std;
+
+using TwoDimArray = vector<vector<int> >;
+
+void fill_random_array(TwoDimArray& arr, int rows, int cols, int min_val, int max_val) {
+    arr.resize(rows); 
+    
+    for (int i = 0; i < rows; ++i) {
+        arr[i].resize(cols); 
+        for (int j = 0; j < cols; ++j) {
+            arr[i][j] = rand() % (max_val - min_val + 1) + min_val;
+        }
+    }
+}
+void print_array(const TwoDimArray& arr) {
+    if (arr.empty() || (arr.size() > 0 && arr[0].empty())) {
+        cout << "Масив порожній." << endl;
+        return;
+    }
+    
+    cout << "\nЗгенерований двовимірний масив:" << endl;
+    for (const auto& row : arr) { 
+        for (int element : row) { 
+            cout << element << "\t";
+        }
+        cout << endl; 
+    }
+}
+
+int find_max(const TwoDimArray& arr) {
+    if (arr.empty() || (arr.size() > 0 && arr[0].empty())) {
+        return numeric_limits<int>::min();
+    }
+
+    int max_val = arr[0][0]; 
+
+    for (const auto& row : arr) {
+        if (!row.empty()) {
+            max_val = max(max_val, *max_element(row.begin(), row.end()));
+        }
+    }
+    return max_val;
+}
+
+int find_min(const TwoDimArray& arr) {
+    if (arr.empty() || (arr.size() > 0 && arr[0].empty())) {
+        return numeric_limits<int>::max(); 
+    }
+
+    int min_val = arr[0][0];
+
+    for (const auto& row : arr) {
+        if (!row.empty()) {
+            min_val = min(min_val, *min_element(row.begin(), row.end()));
+        }
+    }
+    return min_val;
+}
+
+int main() {
+    int rows, cols;
+    cout << "Введіть кількість рядків: ";
+    cin >> rows; 
+    cout << "Введіть кількість стовпців: ";
+    cin >> cols; 
+    
+    if (rows <= 0 || cols <= 0) {
+        cerr << "Помилка: Кількість рядків та стовпців має бути більшою за 0." << endl;
+        return 1;
+    }
+
+    const int MIN_RANGE = -100;
+    const int MAX_RANGE = 100;
+
+    TwoDimArray matrix; 
+
+    fill_random_array(matrix, rows, cols, MIN_RANGE, MAX_RANGE);
+
+    print_array(matrix);
+
+    int max_element = find_max(matrix);
+    cout << "\nМаксимальний елемент: " << max_element << endl;
+
+    int min_element = find_min(matrix);
+    cout << "Мінімальний елемент: " << min_element << endl;
+
+    return 0;
+}
