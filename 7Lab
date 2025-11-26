@@ -1,0 +1,130 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <cmath>     
+#include <numeric>
+#include <iterator>
+#include <cstdlib>
+#include <functional>
+
+using namespace std;
+
+// Функція для порівняння модулів
+bool compareAbs(int a, int b) {
+    return std::abs(a) < std::abs(b);
+}
+
+// Обгортка для функції abs
+int myAbs(int n) {
+    return std::abs(n);
+}
+
+// Функціональний об'єкт для розподілу елементів
+struct ElementSelector {
+    const vector<int>& arr;
+    vector<int>& even_pos;
+    vector<int>& odd_pos;
+    
+    ElementSelector(const vector<int>& a, vector<int>& ev, vector<int>& od) 
+        : arr(a), even_pos(ev), odd_pos(od) {}
+    
+    void operator()(int index) {
+        if (index % 2 == 0) {
+            even_pos.push_back(arr[index]);
+        } else {
+            odd_pos.push_back(arr[index]);
+        }
+    }
+};
+
+// Функціональний об'єкт для генерації індексів
+struct IndexGenerator {
+    int current;
+    IndexGenerator() : current(0) {}
+    int operator()() { return current++; }
+};
+
+int main() {
+    int n;
+    cout << "Write number : ";
+    if (!(cin >> n)) return 0;
+
+    if (n <= 0) {
+        cout << "Array is empty" << endl;
+        return 0;
+    }
+
+    vector<int> arr(n);
+    cout << "Enter the array elements: ";
+
+    for (int i = 0; i < n; i++) {
+        cin >> arr[i];
+    }
+    
+    // --- 1. Мінімальний елемент за модулем ---
+    vector<int>::iterator min_it = min_element(arr.begin(), arr.end(), compareAbs);
+
+    if (min_it != arr.end()) {
+        cout << "\n1. Minimum element in modulus: " << *min_it 
+             << " (modul: " << std::abs(*min_it) << ")" << endl;
+    }
+
+    // --- 2. Сума модулів після першого нуля ---
+    vector<int>::iterator zero_it = find(arr.begin(), arr.end(), 0);
+    
+    long sum_abs = 0;
+
+    if (zero_it != arr.end()) {
+        vector<int> abs_values;
+        
+        if (zero_it + 1 != arr.end()) {
+            transform(zero_it + 1, arr.end(), back_inserter(abs_values), myAbs);
+            sum_abs = accumulate(abs_values.begin(), abs_values.end(), 0);
+        }
+
+        cout << "2. Sum of the moduli: " << sum_abs << endl;
+    } else {
+        cout << "2. Zero not found. Sum: 0" << endl;
+    }
+
+    //3. Розділення масиву з використанням STL 
+    cout << "\n Part 3: Separation and Merge " << endl;
+
+    vector<int> even_pos; // Для парних позицій
+    vector<int> odd_pos;  // Для непарних позицій
+
+    // Створюємо вектори індексів за допомогою generate
+    vector<int> indices(n);
+    generate(indices.begin(), indices.end(), IndexGenerator());
+
+    // Розподіляємо елементи за допомогою for_each
+    ElementSelector selector(arr, even_pos, odd_pos);
+    for_each(indices.begin(), indices.end(), selector);
+
+    // 1. Виводимо масив парних позицій 
+    cout << "Even positions array: ";
+    copy(even_pos.begin(), even_pos.end(), ostream_iterator<int>(cout, " "));
+    cout << endl;
+
+    // 2. Виводимо масив непарних позицій
+    cout << "Odd positions array:  ";
+    copy(odd_pos.begin(), odd_pos.end(), ostream_iterator<int>(cout, " "));
+    cout << endl;
+
+    // 3. Об'єднуємо масиви 
+    vector<int> result;
+    result.reserve(n); 
+    
+    result.insert(result.end(), even_pos.begin(), even_pos.end());
+    result.insert(result.end(), odd_pos.begin(), odd_pos.end());
+
+    // Оновлюємо основний масив
+    arr = result;
+
+    // 4. Виводимо результат
+    cout << "3. Converted (Merged) array: ";
+    copy(arr.begin(), arr.end(), ostream_iterator<int>(cout, " "));
+    cout << endl;
+    
+    return 0;
+}
